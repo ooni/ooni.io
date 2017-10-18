@@ -1,0 +1,28 @@
+{
+  "name": "ooni-website",
+  "description": "OONI Website",
+  "version": "1.0.0-alpha.0",
+  "author": "Open Observatory of Network Interference <contact@ooni.io>",
+  "dependencies": {
+    "gatsby": "^1.9.63",
+    "gatsby-link": "^1.6.21",
+    "gatsby-plugin-react-helmet": "^1.0.5",
+    "gatsby-plugin-styled-components": "^1.0.5",
+    "ooni-components": "^0.1.0-beta.6",
+    "sharp": "^0.18.4"
+  },
+  "keywords": [
+    "gatsby"
+  ],
+  "license": "BSD-3-Clause",
+  "main": "n/a",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --trailing-comma es5 --no-semi --single-quote --write 'src/**/*.js'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "prettier": "^1.7.4"
+  }
+}
