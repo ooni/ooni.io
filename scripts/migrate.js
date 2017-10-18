@@ -1,5 +1,5 @@
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 const Promise = require('any-promise')
 
@@ -34,6 +34,10 @@ if (argv._.length === 0) {
 const config = require(configPath)
 const ooniWebDir = argv._[0]
 
+const contentfulClient = contentful.createClient({
+  accessToken: config.managementAccessToken
+})
+
 const getImages = (mdBody) => {
   const tokens = marked.lexer(mdBody)
   let images = tokens
@@ -63,136 +67,128 @@ const getImages = (mdBody) => {
   return images
 }
 
-const main = () => {
-  var contentfulClient = contentful.createClient({
-    accessToken: config.managementAccessToken
-  })
+const processMarkdown = (data) => {
+  return new Promise((resolve, reject) => {
+    contentfulClient.getSpace('brg7eld9zwg1')
+    .then((space) => {
+      const content = fm(data)
+      const images = getImages(content.body)
+      const { title, categories, tags, author, date } = content.attributes
 
-  glob(path.join(ooniWebDir, 'content', 'post', '*.md'), (err, files) => {
-    if (err !== null) {
-      console.error('ERROR: in finding ooni-web dir')
-      console.log(err)
-      process.exit(1)
-    }
-    //files.forEach(file => {
-      let file = files[0]
-      fs.readFile(file, 'utf8', (err, data) => {
-        if (err !== null) {
-          console.error(`ERROR: in reading ${file}`)
-          return
-        }
-        contentfulClient.getSpace('brg7eld9zwg1')
-        .then((space) => {
-          const content = fm(data)
-          const images = getImages(content.body)
-          const { title, categories, tags, author, date } = content.attributes
+      console.log(`Processing: ${content.attributes.title}`)
 
-          console.log(content.attributes.title)
-          console.log('======')
-          console.log(content.attributes)
-          console.log(JSON.stringify(images, null, 2))
-          console.log('')
+      /*
+      if (categories.indexOf('report') !== -1) {
+        // We want to put reports in another category
+        console.log('...skipping report')
+        return
+      }
+      */
 
-          /*
-          if (categories.indexOf('report') !== -1) {
-            // We want to put reports in another category
-            console.log('...skipping report')
-            return
-          }
-          */
-
-          let imageMap = {}
-          console.log('Promise.all()')
-          Promise.all(
-            images.map(image => {
-              return new Promise((resolve, reject) => {
-                console.log(`uploading ${image.path}`)
-                space.createAssetFromFiles({
-                  fields: {
-                    title: {
-                      'en-US': image.title
-                    },
-                    file: {
-                      'en-US': {
-                        contentType: image.contentType,
-                        fileName: image.fileName,
-                        file: fs.createReadStream(image.path)
-                      }
-                    }
-                  }
-                })
-                .then(asset => asset.processForAllLocales({
-                  processingCheckWait: 1000,
-                  processingCheckRetries: 100
-                }))
-                .then(asset => {
-                  console.log('processed')
-                  console.log(asset)
-                  resolve({
-                    id: asset.sys.id,
-                    url: asset.fields.file['en-US'].url,
-                    image
-                  })
-                })
-                .catch(err => reject(err))
-              })
-            })
-          )
-          .then(images => {
-            if (err !== null) {
-              console.error(`ERROR: failed to process some file inside of ${title}`)
-              console.error(err)
-              return
-            }
-            const originalPaths = images.map(img => [img.image.originalPath, img.url])
-            let idx,
-                body = content.body
-            for (idx in originalPaths) {
-              console.log('idx', idx)
-              console.log('originalPaths', originalPaths)
-              let paths = originalPaths[idx]
-              console.log('path', paths)
-              body = body.replace(paths[0], paths[1])
-            }
-            space.createEntry('blogPost', {
+      let imageMap = {}
+      Promise.all(
+        images.map(image => {
+          return new Promise((resolve, reject) => {
+            console.log(`uploading ${image.path}`)
+            space.createAssetFromFiles({
               fields: {
                 title: {
-                  'en-US': title
+                  'en-US': image.title
                 },
-                authors: {
-                  'en-US': author.split(',').map(a => a.trim()),
-                },
-                tags: {
-                  'en-US': tags
-                },
-                publicationDate: {
-                  'en-US': date
-                },
-                content: {
-                  'en-US': body
-                },
-                images: {
-                  'en-US': images.map(img => ({sys: {type: 'Link', linkType: 'Asset', id: img.id}}))
+                file: {
+                  'en-US': {
+                    contentType: image.contentType,
+                    fileName: image.fileName,
+                    file: fs.createReadStream(image.path)
+                  }
                 }
               }
             })
-            .then(entry => {
-              console.log(`created entry for ${title}`)
+            .then(asset => asset.processForAllLocales({
+              processingCheckWait: 1000,
+              processingCheckRetries: 100
+            }))
+            .then(asset => {
+              console.log(`uploaded: ${image.fileName}`)
+              resolve({
+                id: asset.sys.id,
+                url: asset.fields.file['en-US'].url,
+                image
+              })
             })
-          }).catch(err => console.log(err)) // end creation of entry
-        }) // end getting of space
-      }) // end reading of file
-    //}) // end files forEach
-  }) // end of glob
+            .catch(err => reject(err))
+          })
+        })
+      )
+      .then(images => {
+        const originalPaths = images.map(img => [img.image.originalPath, img.url])
+        let idx,
+            body = content.body
+        for (idx in originalPaths) {
+          let paths = originalPaths[idx]
+          body = body.replace(paths[0], paths[1])
+        }
+        space.createEntry('blogPost', {
+          fields: {
+            title: {
+              'en-US': title
+            },
+            authors: {
+              'en-US': author.split(',').map(a => a.trim()),
+            },
+            tags: {
+              'en-US': tags
+            },
+            publicationDate: {
+              'en-US': date
+            },
+            content: {
+              'en-US': body
+            },
+            images: {
+              'en-US': images.map(img => ({sys: {type: 'Link', linkType: 'Asset', id: img.id}}))
+            }
+          }
+        })
+        .then(entry => {
+          console.log(`created entry for ${title}`)
+          resolve(title)
+        })
+        .catch(err => {
+        console.error(`ERROR: failed to process ${title}`)
+          reject(err)
+        })
+      }).catch(err => {
+        console.error(`ERROR: failed to process ${title}`)
+        console.log(err)
+        reject(err)
+      }) // end creation of entry
+    }) // end getting of space
+  })
+}
+
+const readFile = (path) => {
+  return fs.readFile(path, 'utf8')
+    .then(data => {
+      if (data.length > 50000) {
+        console.log(`SKIPPING ${path}, Contentful disallows allow more than 50k text input`)
+        return
+      }
+      processMarkdown(data)
+        .then(title => console.log(`processed ${title}`))
+        .catch(err => console.error(`ERROR: failed to process ${title}`))
+    })
+    .catch(err => {
+      console.error(`ERROR: in reading ${path}`)
+      console.log(err)
+    })
+}
+
+const main = () => {
+  const files = glob.sync(path.join(ooniWebDir, 'content', 'post', '*.md'))
+  files
+    .map(path => readFile(path))
+    .reduce((p, fn) => (p.then(fn).catch((err) => {console.log(err); process.exit(1)}, Promise.resolve())))
 }
 
 main()
-
-/*
-  // Now that we have a space, we can get entries from that space
-  space.getEntries()
-  .then((entries) => {
-    console.log(JSON.stringify(entries.items, null, 2))
-  })
-})
-*/
