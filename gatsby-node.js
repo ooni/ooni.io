@@ -41,6 +41,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
         _.each(result.data.allContentfulBlogPost.edges, edge => {
           const path = getBlogPostPath(edge.node)
 
+          /*
           _.each(edge.aliases, alias => {
             createRedirect({
               fromPath: alias,
@@ -48,6 +49,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
               isPermanent: true,
             })
           })
+          */
 
           // Gatsby uses Redux to manage its internal state.
           // Plugins and sites can use functions like "createPage"
