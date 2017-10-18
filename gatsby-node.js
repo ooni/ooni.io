@@ -1,10 +1,12 @@
+const path = require(`path`)
+
 const _ = require(`lodash`)
 const Promise = require(`any-promise`)
-const path = require(`path`)
 const slash = require(`slash`)
+const { getBlogPostPath } = require(`./src/utils/paths`)
 
 exports.createPages = ({ graphql, boundActionCreators }) => {
-  const { createPage } = boundActionCreators
+  const { createPage, createRedirect } = boundActionCreators
   return new Promise((resolve, reject) => {
     // The “graphql” function allows us to run arbitrary
     // queries against the local Contentful graphql schema. Think of
@@ -17,6 +19,9 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             edges {
               node {
                 id
+                aliases
+                title
+                publicationDate
               }
             }
           }
@@ -32,7 +37,18 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
         const blogPostTemplate = path.resolve(`./src/templates/blog-post.js`)
         // We want to create a detailed page for each
         // blog post node. We'll just use the Contentful id for the slug.
+
         _.each(result.data.allContentfulBlogPost.edges, edge => {
+          const path = getBlogPostPath(edge.node)
+
+          _.each(edge.aliases, alias => {
+            createRedirect({
+              fromPath: alias,
+              toPath: path,
+              isPermanent: true,
+            })
+          })
+
           // Gatsby uses Redux to manage its internal state.
           // Plugins and sites can use functions like "createPage"
           // to interact with Gatsby.
@@ -41,10 +57,10 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             // as a template component. The `context` is
             // optional but is often necessary so the template
             // can query data specific to each page.
-            path: `/post/${edge.node.id}/`,
+            path: path,
             component: slash(blogPostTemplate),
             context: {
-              id: edge.node.id,
+              id: edge.node.id
             },
           })
         })

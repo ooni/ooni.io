@@ -1,6 +1,8 @@
 import React from 'react'
 import GLink from 'gatsby-link'
 
+import { getBlogPostPath } from '../utils/paths'
+
 import {
   Heading,
   Text,
@@ -25,7 +27,7 @@ import {
 
 const BlogPost = ({ node }) => (
   <div>
-    <GLink to={`/post/${node.id}/`}>
+    <GLink to={`${getBlogPostPath(node)}`}>
       <div style={{ flex: 1 }}>{node.title}</div>
     </GLink>
   </div>
@@ -65,6 +67,7 @@ export const pageQuery = graphql`
         node {
           id
           title
+          publicationDate
         }
       }
     }
