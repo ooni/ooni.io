@@ -19,8 +19,8 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             edges {
               node {
                 id
-                aliases
                 title
+                aliases
                 publicationDate
               }
             }
@@ -30,6 +30,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
     )
       .then(result => {
         if (result.errors) {
+          console.log(result.errors)
           reject(result.errors)
         }
 
@@ -39,17 +40,17 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
         // blog post node. We'll just use the Contentful id for the slug.
 
         _.each(result.data.allContentfulBlogPost.edges, edge => {
-          const path = getBlogPostPath(edge.node)
+          const blogPostPath = getBlogPostPath(edge.node)
+          const aliases = edge.node.aliases || []
 
-          /*
-          _.each(edge.aliases, alias => {
+          _.each(aliases, alias => {
+            const fromPath = slash(path.join('/post', alias))
             createRedirect({
-              fromPath: alias,
-              toPath: path,
+              fromPath: fromPath,
+              toPath: blogPostPath,
               isPermanent: true,
             })
           })
-          */
 
           // Gatsby uses Redux to manage its internal state.
           // Plugins and sites can use functions like "createPage"
@@ -59,7 +60,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             // as a template component. The `context` is
             // optional but is often necessary so the template
             // can query data specific to each page.
-            path: path,
+            path: blogPostPath,
             component: slash(blogPostTemplate),
             context: {
               id: edge.node.id
