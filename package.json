@@ -1,0 +1,22 @@
+{
+  "name": "ooni-website",
+  "description": "OONI Website",
+  "version": "1.0.0-alpha.0",
+  "author": "Open Observatory of Network Interference <contact@ooni.io>",
+  "dependencies": {
+    "any-promise": "^1.3.0",
+    "bluebird": "^3.5.1",
+    "next": "4.2.0",
+    "lodash": "^4.17.4",
+    "ooni-components": "^0.1.0-beta.6"
+  },
+  "license": "BSD-3-Clause",
+  "main": "n/a",
+  "scripts": {
+    "build": "next build",
+    "dev": "node server",
+    "start": "NODE_ENV=production node server"
+  },
+  "devDependencies": {
+  }
+}
