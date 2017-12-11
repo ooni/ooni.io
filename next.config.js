@@ -22,5 +22,8 @@ module.exports = {
       ]
     })
     return config
-  }
+  },
+  exportPathMap: () => ({
+    "/": { page: "/" }
+  })
 }

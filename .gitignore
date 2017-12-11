@@ -8,3 +8,5 @@ public/
 .DS_Store
 yarn-error.log
 .next/
+out/
+static/
