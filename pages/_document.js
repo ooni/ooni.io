@@ -2,7 +2,6 @@ import Document, { Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from 'styled-components'
 
 import globalStyle from '../components/globalStyle'
-import meta from '../config/meta'
 
 export default class MyDocument extends Document {
   render () {

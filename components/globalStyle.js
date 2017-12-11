@@ -1,18 +1,5 @@
 import { injectGlobal } from 'styled-components'
 
-/*
- * XXX these imports are currently broken
-import CharterRegular from 'ooni-components/dist/fonts/Charter-Regular.woff'
-import CharterBold from 'ooni-components/dist/fonts/Charter-Bold.woff'
-
-import FiraSansLight from 'ooni-components/dist/fonts/FiraSans-Light.woff'
-import FiraSansRegular from 'ooni-components/dist/fonts/FiraSans-Regular.woff'
-import FiraSansBold from 'ooni-components/dist/fonts/FiraSans-Bold.woff'
-
-import SourceCodeProBold from 'ooni-components/dist/fonts/SourceCodePro-Bold.woff'
-import SourceCodeProRegular from 'ooni-components/dist/fonts/SourceCodePro-Regular.woff'
-*/
-
 const CharterRegular = '/static/fonts/Charter-Regular.woff'
 const CharterBold = '/static/fonts/Charter-Bold.woff'
 

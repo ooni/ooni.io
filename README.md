@@ -1,17 +1,26 @@
-# OONI website
+This app was bootstrapped using
+[create-ooni-app](https://github.com/openobservatory/create-ooni-app).
 
-Assuming you have node and yarn installed, run:
+## Available Scripts
 
-```
-yarn
-```
+In the project directory, you can run:
 
-Note: If you encounter issues with the install process getting stuck while
-installing `sharp`, try installing node-gyp globally with `npm install
-node-gyp` and re-running the above command.
+### `npm run dev`
 
-To start the dev server run:
+Runs the app in the development mode.<br>
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-```
-yarn run develop
-```
+The page will reload if you make edits.<br>
+You will also see any errors in the console.
+
+### `npm run build`
+
+Builds the app for production to the `.next` folder.<br>
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+### `npm run start`
+
+Starts the application in production mode.
+The application should be compiled with \`next build\` first.
+
+See the section in Next docs about [deployment](https://github.com/zeit/next.js/wiki/Deployment) for more information.
