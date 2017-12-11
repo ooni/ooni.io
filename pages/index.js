@@ -1,7 +1,7 @@
 import Head from '../components/Head'
 import Layout from '../components/Layout'
 
-import Heading from 'ooni-components'
+import { Heading } from 'ooni-components'
 
 export default () => (
   <Layout>

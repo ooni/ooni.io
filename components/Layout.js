@@ -3,7 +3,7 @@ import React from 'react'
 import Head from './Head'
 import { Provider, theme } from 'ooni-components'
 
-const Layout = props => (
+export const Layout = props => (
   <div>
     <Head
       title={props.title}

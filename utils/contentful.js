@@ -1,20 +1,25 @@
 import { createClient } from 'contentful'
 import paramCase from 'param-case'
 
-export const CONTENTFUL_WEBSITE_SPACE_ID = 'brg7eld9zwg1'
-
 export const CONTENTFUL_ACCESS_TOKEN = 'undefined' !== process ? process.env.CONTENTFUL_ACCESS_TOKEN : null
 
 export const contentTypes = {
   blogPost: 'blogPost'
 }
 
-export const contentfulClient = createClient({
-  space: CONTENTFUL_WEBSITE_SPACE_ID,
-  accessToken: CONTENTFUL_ACCESS_TOKEN
-})
+export const spaceIDs = {
+  'website': 'brg7eld9zwg1'
+}
+
+export const createContentfulClient = () => {
+  return createClient({
+    space: spaceIDs.website,
+    accessToken: CONTENTFUL_ACCESS_TOKEN
+  })
+}
 
 export const getAllBlogPosts = async (opt = {}) => {
+  const contentfulClient = createContentfulClient()
   let entries,
     items = [],
     total = 1,
